@@ -1,0 +1,17 @@
+EASY
+
+RANK           PLAYER         POINTS         TIME TAKEN     
+1              Easy Try 2     5              0 min, 16 sec  
+2              Easy Try 1     2              0 min, 6 sec   
+
+
+
+DIFFICULT
+
+RANK           PLAYER         POINTS         TIME TAKEN     
+1              Diff Try 1     2              0 min, 28 sec  
+
+
+
+
+nothing follows

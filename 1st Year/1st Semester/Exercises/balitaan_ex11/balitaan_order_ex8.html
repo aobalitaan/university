@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title> UPCAKE Order Form </title>
+		<link rel="stylesheet" href="balitaan_ex9.css" />
+	</head>
+	<body onload = "delivery()" id="orderpage"> 
+		
+		<form id="orderform" class="orderform">
+		<fieldset> 
+			<legend> Customer Information </legend>
+
+			<!--Gets Personal Information-->
+
+			<label> Name: <input type="text" id="name" name="name" required /></label><br/>
+			<label> Mobile Number: <input type="tel" id="mobilenum" name="mobilenum" pattern="[0]{1}[9]{1}[0-9]{9}" placeholder="09xxxxxxxxx" required /></label><br/>
+			<label> Email Address: <input type="email" id="email" name="email" required/></label>
+		</fieldset>
+
+		<fieldset>
+			<legend> Wedding Cake Details </legend>	
+
+			<!--Gets Info for Cake-->
+
+			<label> Tiers(1-5) <input type="number" id="numbertiers" name="numbertiers" min="1" max="5" required/></label><br/></label>
+
+			<!--Radio Input for Cake-->
+
+			<label> Cake Flavor<br> </label>
+			<label><input type="radio" id="flavor1" name="flavor" value="Traditional White" checked="checked" />Traditional White</label><br>
+			<label><input type="radio" id="flavor2" name="flavor" value="Devil's Food Chocolate"/>Devil's Food Chocolate</label><br>
+			<label><input type="radio" id="flavor3" name="flavor" value="Red Velvet"/>Red Velvet</label><br>
+			<label><input type="radio" id="flavor4" name="flavor" value="Lemon"/>Lemon</label><br>
+
+			<label> Filling<br> </label>
+			<label><input type="radio" id="filling1" name="filling" value="Raspberry Jam" checked="checked" />Raspberry Jam</label><br>
+			<label><input type="radio" id="filling2" name="filling" value="Strawberry Jam"/>Strawberry Jam</label><br>
+			<label><input type="radio" id="filling3" name="filling" value="Buttercream"/>Buttercream</label><br>
+			<label><input type="radio" id="filling4" name="filling" value="Apricot Jam"/>Apricot Jam</label><br>
+			
+			<label> Icing<br> </label>
+			<label><input type="radio" id="icing1" name="icing" value="Buttercream" checked="checked"/>Buttercream</label><br>
+			<label><input type="radio" id="icing2" name="icing" value="Cream Cheese"/>Cream Cheese</label><br>
+			<label><input type="radio" id="icing3" name="icing" value="Mocha Espresso"/>Mocha Espresso</label><br>
+
+
+			<!--Checkbox Input for Cake-->
+
+			<label> Inside Cake Additions<br> </label>
+			<label><input type="checkbox" id="additions1" name="additions" value="Walnut"/>Walnut</label><br>
+			<label><input type="checkbox" id="additions2" name="additions" value="Chocolate Chips"/>Chocolate Chips</label><br>
+			<label><input type="checkbox" id="additions3" name="additions" value="Pecans"/>Pecans</label><br>
+			<label><input type="checkbox" id="additions4" name="additions" value="White Chocolate Chips"/>White Chocolate Chips</label><br>
+
+			<label> Decorative Additions<br> </label>
+			<label><input type="checkbox" id="decoration1" name="decoration" value="Walnut"/>Walnut</label><br>
+			<label><input type="checkbox" id="decoration2" name="decoration" value="Chocolate Chips"/>Chocolate Chips</label><br>
+			<label><input type="checkbox" id="decoration3" name="decoration" value="Pecans"/>Pecans</label><br>
+			<label><input type="checkbox" id="decoration4" name="decoration" value="White Chocolate Chips"/>White Chocolate Chips</label><br>
+
+
+			<!--Dropdown Meny for Liquor Infusions-->
+
+			<label>Liquor Infusion
+				<select liquor="infusions" id="liquor infusions">
+					<option value="Rum">Rum</option>
+					<option value="Amaretto">Amaretto</option>
+					<option value="Kaluha">Kaluha</option>
+					<option value="None">None</option>
+				</select></label>
+		</fieldset>
+
+		<fieldset>
+
+			<!--Delivery Field Sets-->
+
+			<legend> Delivery Details<br> </legend>
+
+			<label> Shipping <br></label>
+			<label><input onclick="delivery()" type="radio" id="pickup" name="shipping" value="Store Pickup" checked="checked" />Store Pickup</label><br>
+			<label><input onclick="delivery()" type="radio" id="shipping" name="shipping" value="Delivery"/>Delivery</label><br>
+			<p></p>
+			
+			<label> <textarea rows="10" cols="50" name="Address" id="Address" placeholder="Address here..." required></textarea><br>
+
+			<label>Preferred delivery date <input onchange="datevalidation()" type="date" name="delivery date" id="delivery date" required/></label><br>
+			<p id="deliverydatevalid">  </p>
+
+			<label>Preferred delivery time <input onchange="timevalidation()" type="time" name="delivery time" id="delivery time" required/></label>
+			<p id="deliverytimevalid">  </p>
+			
+		</fieldset>
+
+
+		<!--Submit and Reset Button-->
+	<div id="buttons">
+		<button id = "submitorder" type="submit" onclick = "compute()"> SUBMIT </button>
+
+	</div>
+		<br>
+		<a href="balitaan_home_ex8.html" id="back">Back Home</a>
+	
+		</form>
+
+		<!--Back to Home Page-->
+
+	<script type="text/javascript" src="balitaan_ex11.js"> </script>	
+
+	</body>
+	
+	<script>
+		document.getElementById('orderform').addEventListener("submit", function(event) {		// Extra lines to prevent page refresh
+			event.preventDefault()});
+	</script>
+	
+</html>

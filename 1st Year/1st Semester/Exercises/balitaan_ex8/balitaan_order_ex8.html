@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title> UPCAKE Order Form </title>
+	</head>
+	<body>
+		<form>
+		<fieldset> 
+			<legend> Customer Information </legend>
+
+			<!--Gets Personal Information-->
+
+			<label> Name: <input type="text" id="name" name="name" required /></label><br/>
+			<label> Mobile Number: <input type="tel" id="mobilenum" name="mobilenum" pattern="[0]{1}[9]{1}[0-9]{9}" placeholder="09xxxxxxxxx" required /></label><br/>
+			<label> Email Address: <input type="email" id="email" name="email" required/></label>
+		</fieldset>
+
+		<fieldset>
+			<legend> Wedding Cake Details </legend>	
+
+			<!--Gets Info for Cake-->
+
+			<label> Tiers(1-5) <input type="number" id="numbertiers" name="numbertiers" min="1" max="5" required/></label><br/></label>
+
+
+			<!--Radio Input for Cake-->
+
+			<label> Cake Flavor<br> </label>
+			<label><input type="radio" id="flavor" name="flavor" value="Traditional White" checked />Traditional White</label><br>
+			<label><input type="radio" id="flavor" name="flavor" value="Devil's Food Chocolate"/>Devil's Food Chocolate</label><br>
+			<label><input type="radio" id="flavor" name="flavor" value="Red Velvet"/>Red Velvet</label><br>
+			<label><input type="radio" id="flavor" name="flavor" value="Lemon"/>Lemon</label><br>
+
+			<label> Filling<br> </label>
+			<label><input type="radio" id="filling" name="filling" value="Raspberry Jam" checked />Raspberry Jam</label><br>
+			<label><input type="radio" id="filling" name="filling" value="Strawberry Jam"/>Strawberry Jam</label><br>
+			<label><input type="radio" id="filling" name="filling" value="Buttercream"/>Buttercream</label><br>
+			<label><input type="radio" id="filling" name="filling" value="Apricot Jam"/>Apricot Jam</label><br>
+			
+			<label> Icing<br> </label>
+			<label><input type="radio" id="icing" name="icing" value="Buttercream" checked />Buttercream</label><br>
+			<label><input type="radio" id="icing" name="icing" value="Cream Cheese"/>Cream Cheese</label><br>
+			<label><input type="radio" id="icing" name="icing" value="Mocha Espresso"/>Mocha Espresso</label><br>
+
+
+			<!--Checkbox Input for Cake-->
+
+			<label> Inside Cake Additions<br> </label>
+			<label><input type="checkbox" id="additions" name="additions" value="Walnut"/>Walnut</label><br>
+			<label><input type="checkbox" id="additions" name="additions" value="Chocolate Chips"/>Chocolate Chips</label><br>
+			<label><input type="checkbox" id="additions" name="additions" value="Pecans"/>Pecans</label><br>
+			<label><input type="checkbox" id="additions" name="additions" value="White Chocolate Chips"/>White Chocolate Chips</label><br>
+
+			<label> Decorative Additions<br> </label>
+			<label><input type="checkbox" id="decoration" name="decoration" value="Walnut"/>Walnut</label><br>
+			<label><input type="checkbox" id="decoration" name="decoration" value="Chocolate Chips"/>Chocolate Chips</label><br>
+			<label><input type="checkbox" id="decoration" name="decoration" value="Pecans"/>Pecans</label><br>
+			<label><input type="checkbox" id="decoration" name="decoration" value="White Chocolate Chips"/>White Chocolate Chips</label><br>
+
+
+			<!--Dropdown Meny for Liquor Infusions-->
+
+			<label>Liquor Infusion</label>
+				<select liquor="infusions" id="liquor infusions">
+					<option value="Rum" id="liquor infusions">Rum</option>
+					<option value="Amaretto" id="liquor infusions">Amaretto</option>
+					<option value="Kaluha" id="liquor infusions">Kaluha</option>
+					<option value="None" id="liquor infusions">None</option>
+				</select>
+		</fieldset>
+
+		<fieldset>
+
+			<!--Delivery Field Sets-->
+
+			<legend> Delivery Details<br> </legend>
+
+			<label> <textarea rows="10" cols="50" name="Address" id="Address" placeholder="Address here..." required/></textarea><br>
+
+			<label>Preferred delivery date<input type="date" name="delivery date" id="delivery date" required/></label><br>
+
+			<label>Preferred delivery time<input type="time" name="delivery time" id="delivery time" required/></label>
+		</fieldset>
+
+
+		<!--Submit and Reset Button-->
+
+		<button type="submit"> Submit </button>
+		<button type="reset"> Reset </button>
+		</form>
+
+
+		<!--Back to Home Page-->
+
+		<center><a href="balitaan_home_ex8.html">Back Home</a>
+		
+
+	</body>
+</html>

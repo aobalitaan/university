@@ -1,0 +1,80 @@
+/*Axel Balitaan*/
+/*CMSC 12 T15L*/
+/*Using CSS to desing html*/
+
+
+#home{
+	background-image: url("https://images6.alphacoders.com/408/408045.jpg") ;						/*background*/
+	background-size:  2100px;
+	backdrop.filter: blur(10px);
+}
+
+#opening{
+	position: relative;
+	top:  300px;
+}
+
+
+#shopname{
+	color: #342A21 ;		/*text color*/																						
+	text-align:  center;	/*text align*/	
+	font-family:  Georgia, serif;				/*font*/	
+	font-size:  50px;
+	font-weight: bold;
+	height:  20%;
+}
+
+#tagline{
+	color: #DA667B ;
+	text-align: center;
+	font-family: Verdana, sans-serif;
+	font-style:  italic;					/*font style*/	
+}
+
+#click{
+	text-align: center;
+	font-family: Verdana, sans-serif;
+	text-align: center;
+}
+
+#orderpage{
+	background-color: #DA667B ;			/*background color*/	
+}
+
+legend{
+	color: brown;
+	font-family:  Georgia, serif;
+	font-weight:  bold;
+}
+
+fieldset{
+	margin: 0;						/*margin*/	
+	margin-bottom: 10px;
+	margin-left: 13%;
+	width: 500px;
+}
+
+#buttons{
+	margin-left: 40%;
+}
+
+.orderform{
+	background-color: white;
+	width:  700px;
+	margin-left:  30%;
+
+	padding-top: 20px;			/*padding*/	
+	padding-bottom:  20px;
+	padding-right: 20px;
+	padding-left: 20px;
+}
+
+#back{
+	margin-left: 43%;
+}
+
+label{
+	font-family: Verdana, sans-serif;
+}
+
+/*div po nasa html hehe*/
