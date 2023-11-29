@@ -1,50 +1,33 @@
-sample_mat = matrix(c(2,5,50,1,3,27,16,45,1), nrow = 3, ncol = 3, byrow = TRUE);
+database <- read.csv("C:/Users/Axel/Desktop/university/2nd Year/1st Semester/CMSC 150/FinalProject/database.csv")
+options("max.print" = 100000000)
 
-createTableu <- function(augcoeffmat)
+
+dataInput = database[1:20,]
+minimum = c(2000, 0, 0, 0, 0, 25, 50, 5000, 50, 800, 10)
+maximum = c(2250, 300, 65, 2400, 300, 100, 100, 50000, 20000, 1600, 30)
+maxserve = 10
+
+simplexMinimize <- function(dataInput, minimum, maximum, maxserve)
 {
-  transMat = t(augcoeffmat)
-  r_trans = nrow(transMat)
-  c_trans = ncol(transMat)
-  
-  colnames(transMat) = c(paste0("S", 1:(c_trans - 1)), "SOLUTION")
-  
-  slackMat = diag(r_trans)
-  colnames(slackMat) = c(paste0("X", 1:(c_trans - 1)), "Z")
-  
-  tableu = cbind(transMat[,-c_trans], slackMat, transMat[,c_trans])
-  r_tableu = nrow(tableu)
-  c_tableu = ncol(tableu)
-  
-  for (i in 1:(c_tableu - 2))
-  {
-    tableu[r_tableu, i] = -tableu[r_tableu, i]
-  }
-  tableu[r_tableu,c_tableu] = 0
-  
-  return (tableu)
+  augcoeffmat = getAugCoeff(dataInput, minimum, maximum, maxserve)
+  dualTableu = setUpTableu(augcoeffmat)
+  simplexMaximize(dualTableu)
 }
 
-simplexMinimize <- function(augcoeffmat)
+getBasicSol <- function(tableu, isFinal)
 {
-  tableu = createTableu(augcoeffmat)
-  trans = t(tableu)
   
-  simplexMaximize (tableu, "min")
-}
-
-
-getBasicSol <- function(tableu, type, final)
-{
-  r_tableu = nrow(tableu)
-  c_tableu = ncol(tableu)
+  lastRow = nrow(tableu)
+  lastCol = ncol(tableu)
   
-  basicSol = matrix(NA, nrow = 1, ncol = c_tableu - 1)
-  colnames(basicSol) = colnames(tableu)[-c_tableu]
-  writeLines("")
+  basicSol = matrix(NA, nrow = 1, ncol = ncol(tableu) - 1)
+  foodNames = rownames(tableu)[-nrow(tableu)]
+  sCount = lastCol - 2 - length(foodNames)  
+  colnames(basicSol) = c(paste0("S", 1:sCount), foodNames, "Z")
   
-  if ((final == 1) && (type == "min"))
+  if (isFinal == TRUE)
   {
-    basicSol[1,] = c(tableu[r_tableu,-(c_tableu-1)])
+    basicSol[1,] = c(tableu[lastRow,-(lastCol-1)])
   }
   else
   {
@@ -55,57 +38,117 @@ getBasicSol <- function(tableu, type, final)
     }
   }
   
-  print(basicSol)
+  basicSol = round(basicSol, 2)
+  
+  return (basicSol)
 }
 
-simplexMaximize <- function(tableu, type)
+simplexMaximize <- function(tableu)
 {
-  lastRow = nrow(tableu)
-  
-  counter = 0;
-  
   while (TRUE)
   {
-    pivotCol = which.min(tableu[lastRow,])
+    lastRow = nrow(tableu)
+    lastCol = ncol(tableu)
     
-    writeLines("")
-    print(tableu)
-    writeLines("")
+    iPC = which.min(tableu[lastRow,])
     
-    if (tableu[lastRow,pivotCol] >= 0) 
+    if (tableu[lastRow, iPC] >= 0)
     {
       break
     }
     
-    getBasicSol(tableu, type, 0)
+    pivotCol = tableu[-lastRow,iPC]
     
-    lastCol = ncol(tableu)
+    RHS = tableu[-lastRow, lastCol]
     
-    testRatio = ifelse(tableu[,pivotCol] <= 0, NA, tableu[,lastCol]/tableu[,pivotCol])
-    pivotRow = which.min(testRatio)
-    pivotE = tableu[pivotRow,pivotCol]
+    testRatio = RHS / pivotCol
+    testRatio = ifelse(testRatio > 0, testRatio, Inf)
     
-    if ((pivotE == 0) || (is.na(pivotE)))
+    iPR = which.min(testRatio)
+    
+    pivotRow = tableu[iPR,]
+    
+    pivotE = tableu[iPR, iPC]
+    
+    if (pivotE <= 0)
     {
-      print("Encountered division by zero!")
-      return (NULL);
+      print("Infeasible Solution")
+      return (NA);
     }
     
-    nPR = tableu[pivotRow,] / pivotE
+    nPR = pivotRow / pivotE
     
     for (i in 1:lastRow)
     {
-      if (i == pivotRow) 
+      if (i == iPR)
       {
         tableu[i,] = nPR
       }
-      else 
+      else
       {
-        tableu[i,] = tableu[i,] - (nPR * tableu[i,pivotCol])
+        tableu[i,] = tableu[i,] - (nPR * tableu[i,iPC])
       }
     }
+    basicSol = getBasicSol(tableu, FALSE)
   }
-  getBasicSol(tableu, type, 1)
+  basicSol = getBasicSol(tableu, TRUE)
+  
+  return (tableu)
 }
 
-simplexMinimize(sample_mat);
+setUpTableu <- function(augcoeffmat)
+{
+  augcoeffmat = t(augcoeffmat)
+  
+  slack = diag(nrow(augcoeffmat))
+  colnames(slack) = c(paste0("X", 1:(nrow(augcoeffmat)- 1)), "Z")
+  
+  tableu = cbind(augcoeffmat[,-ncol(augcoeffmat)], slack, augcoeffmat[,ncol(augcoeffmat)])
+  
+  colnames(tableu) = c(paste0("S", 1:(ncol(augcoeffmat) - 1)),
+                       paste0("X", 1:(nrow(augcoeffmat) - 1)),
+                        "Z",
+                       "SOLUTION")
+  
+  tableu[nrow(tableu), -(ncol(tableu) - 1)] = -tableu[nrow(tableu), -(ncol(tableu) - 1)]
+  tableu[nrow(tableu), ncol(tableu)] = 0
+  
+  return (tableu)
+}
+
+setUpConst <- function(augcoeffmat, foodNames, prices, nutrients, minimum, maximum, maxserve)
+{
+  augcoeffmat = rbind(augcoeffmat, -augcoeffmat)
+  rownames(augcoeffmat) = c(paste0("min_", nutrients), paste0("max_", nutrients))
+  
+  augcoeffmat = cbind(augcoeffmat, c(minimum, -maximum))
+  
+  servConst = cbind(-diag(length(foodNames)), -maxserve)
+  rownames(servConst) = paste0("serv_", foodNames)
+  
+  obj = matrix(c(prices, 1), nrow = 1)
+  
+  augcoeffmat = rbind(augcoeffmat, servConst, obj)
+  
+  colnames(augcoeffmat) = c(foodNames, "SOLUTION")
+  
+  return (augcoeffmat)
+}
+
+getAugCoeff <- function(dataInput, minimum, maximum, maxserve)
+{
+  data = as.matrix(dataInput)
+  
+  foodNames = data[,1]
+  prices = as.numeric(gsub("\\$", "", data[,2]))
+  nutrients = colnames(data[,-(1:3)])
+  
+  data = matrix(as.numeric(data[,-(1:3)]), nrow = nrow(data[,-(1:3)]))
+  augcoeffmat = t(data)
+  
+  const_augcoeffmat = setUpConst(augcoeffmat, foodNames, prices, nutrients, minimum, maximum, maxserve)
+  
+  return (const_augcoeffmat)
+}
+
+result = simplexMinimize(dataInput, minimum, maximum, maxserve)
