@@ -1,0 +1,116 @@
+x = c(0, 1, 2.5, 3, 4, 5, 6, 7, 8, 8.75, 9, 10, 11, 11.25, 11.5)
+y = c(1, 2, 9, 9.2, 10, 12, 14.5, 17, 20, 23, 23.5, 24, 25.5, 25.9, 25.9)
+
+source("gaussMethods.R")
+
+data = matrix(c(x, y), ncol = 2, nrow = length(x), byrow = FALSE)
+xEval = 0.5
+
+quadraticSpline <- function(data, xEval)
+{
+  rData = nrow(data)
+  cData = ncol(data)
+  
+  if ((xEval > data[rData, 1]) || (xEval < data[1, 1]))
+  {
+    print("Out of range")
+    return (NA);
+  }
+  
+  eqtns = createEquation(data, rData - 1)
+  eqtns = eqtns[-1,-1]
+  
+  sol = GaussJordanMethod(list(augcoeffmatrix = eqtns, variables = ncol(eqtns[,-ncol(eqtns)]))) $ solution
+  sol = matrix(sol, nrow = 1)
+  
+  sol = cbind(0, sol)
+  
+  colnames(sol) = c("A1", colnames(eqtns[,-ncol(eqtns)]))
+  
+  fx = createFunctions(sol)
+  
+  yEval = evaluateX(data, fx, xEval)
+  print(yEval)
+}
+
+createEquation <- function(data, n)
+{
+  eqtns = matrix(0, nrow = (3 * n), ncol = (3 * n) + 1)
+
+  var <- paste0(rep(c("A", "B", "C"), n), rep(1:n, each = 3))
+  colnames(eqtns) <- c(var, "RHS")
+  
+  mat_ptr = 2
+  col_ptr = 1
+  
+  for (i in 2:n)
+  {
+    b = data[i,1]
+    a = b ^ 2
+    y = data[i,2]
+    
+    eqtns[mat_ptr, col_ptr:(col_ptr + 2)] = c(a, b, 1)
+    eqtns[mat_ptr, (3 * n) + 1] = y
+    
+    col_ptr = col_ptr + 3
+    
+    eqtns[mat_ptr + 1, col_ptr:(col_ptr + 2)] = c(a, b, 1)
+    eqtns[mat_ptr + 1, (3 * n) + 1] = y
+    
+    mat_ptr = mat_ptr + 2
+  }
+  
+  b = data[c(1, n + 1), 1]
+  y = y = data[c(1, n + 1), 2]
+  a = b ^ 2
+  
+  eqtns[mat_ptr, 1:3] = c(a[1], b[1], 1)
+  eqtns[mat_ptr, (3 * n) + 1] = y[1]
+  
+  eqtns[mat_ptr + 1, (3 * n - 2):(3 * n)] = c(a[2], b[2], 1)
+  eqtns[mat_ptr + 1, (3 * n) + 1] = y[2]
+  
+  mat_ptr = mat_ptr + 2
+  
+  col_ptr = 1
+  for (i in 2:n)
+  {
+    a = 2 * data[i,1]
+    
+    eqtns[mat_ptr, col_ptr:(col_ptr + 4)] = c(a, 1, 0, -a, -1)
+    col_ptr = col_ptr + 3
+    mat_ptr = mat_ptr + 1
+  }
+  
+  return (eqtns)
+}
+
+createFunctions <- function(sol) {
+  fx = c()
+  
+  for (i in seq(from = 1, to = ncol(sol), by = 3))
+  {
+    subSol = sol[1,i:(i+2)]
+    
+    intervFx = paste("function (x) ", paste0("( ", subSol, " * (x ^ ", 2:0, ") )", collapse = " + "))
+    intervFx = eval(parse(text = intervFx))
+    
+    
+    fx = c(fx, intervFx)
+  }
+  
+  return(fx)
+}
+
+evaluateX <- function(data, fx, xEval)
+{
+  for (i in 1:nrow(data))
+  {
+    if (xEval <= data[i,1])
+    {
+      return(fx[[i - 1]](xEval))
+    }
+  }
+}
+
+quadraticSpline(data, xEval)

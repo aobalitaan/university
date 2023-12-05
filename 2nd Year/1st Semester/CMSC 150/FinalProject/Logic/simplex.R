@@ -1,4 +1,3 @@
-
 minimum = c(2000, 0, 0, 0, 0, 25, 50, 5000, 50, 800, 10)
 maximum = c(2250, 300, 65, 2400, 300, 100, 100, 50000, 20000, 1600, 30)
 maxserve = 10
@@ -33,7 +32,7 @@ getBasicSol <- function(tableu, isFinal)
       basicSol[1,i] = ifelse(((sum(column) == 1) && (max(column) == 1)), tableu[which.max(column),ncol(tableu)], 0)
     }
   }
-  
+  print(tableu)
   basicSol = round(basicSol, 2)
   print(t(basicSol))
   return (basicSol)

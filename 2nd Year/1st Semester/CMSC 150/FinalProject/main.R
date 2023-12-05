@@ -1,6 +1,7 @@
 library(shiny)
 library(shinyjs)
 
+
 source("C:/Users/Axel/Desktop/university/2nd Year/1st Semester/CMSC 150/FinalProject/modules/module_home.R")
 source("C:/Users/Axel/Desktop/university/2nd Year/1st Semester/CMSC 150/FinalProject/modules/module_dietSolver.R")
 source("C:/Users/Axel/Desktop/university/2nd Year/1st Semester/CMSC 150/FinalProject/modules/module_regression.R")
@@ -16,7 +17,7 @@ ui <- fluidPage(
     tabPanel("Home", ui_home()),
     tabPanel("Spline", ui_spline()),
     tabPanel("Regression", ui_regression()),
-    tabPanel("Diet Problem Solver", ui_dietSolver())
+    tabPanel("Diet Solver", ui_dietSolver("dietSolver"))
   ),
   
   shinyjs::useShinyjs(),
@@ -47,9 +48,7 @@ server <- function(input, output, session) {
   
   shinyjs::addClass(id = "navbar", class = "navbar-right")
   
-  shiny::moduleServer("home", server_home)
-  shiny::moduleServer("tab1", server_spline)
-  shiny::moduleServer("tab2", server_regression)
+  server_dietSolver("dietSolver")
 }
 
 shinyApp(ui = ui, server = server)
