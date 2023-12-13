@@ -1,13 +1,19 @@
+setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
+
 library(shiny)
 library(shinyjs)
+library(shinyWidgets)
+library(shinycssloaders)
+library("magrittr")
+library("dplyr")
 
-
-source("C:/Users/Axel/Desktop/university/2nd Year/1st Semester/CMSC 150/FinalProject/modules/module_home.R")
-source("C:/Users/Axel/Desktop/university/2nd Year/1st Semester/CMSC 150/FinalProject/modules/module_dietSolver.R")
-source("C:/Users/Axel/Desktop/university/2nd Year/1st Semester/CMSC 150/FinalProject/modules/module_regression.R")
-source("C:/Users/Axel/Desktop/university/2nd Year/1st Semester/CMSC 150/FinalProject/modules/module_spline.R")
+source("modules/module_home.R")
+source("modules/module_dietSolver.R")
+source("modules/module_regression.R")
+source("modules/module_spline.R")
 
 ui <- fluidPage( 
+  theme = shinythemes::shinytheme("flatly"), 
   navbarPage(
     id = "navbar",
     title = "CMSC 150 PROJECT",
@@ -15,28 +21,53 @@ ui <- fluidPage(
     position = "fixed-top",
     
     tabPanel("Home", ui_home()),
-    tabPanel("Spline", ui_spline()),
+    tabPanel("Spline", ui_spline("spline")),
     tabPanel("Regression", ui_regression()),
     tabPanel("Diet Solver", ui_dietSolver("dietSolver"))
   ),
   
-  shinyjs::useShinyjs(),
+  useShinyjs(),
   
   
-  tags$style(
-    type = "text/css",
-    HTML('
-    body 
-    {
-      padding-top: 50px;
-      background-color: #ffffff; /* Light background color */
-      color: #000000; /* Text color */
-      margin-left: 0; /* Remove left margin */
-    }
-  ')
-  ),
+  tags$head(
+    tags$style(
+      type = "text/css",
+      HTML("
+      
+      body 
+      {
+        padding-top: 55px;
+        margin-left: 0;
+        overflow-x: hidden;
+      }
+      * 
+      {
+        font-family: 'Montserrat';
+      }
+      .navbar {
+        font-weight: 450;
+        font-size: 15px;
+      }
+      .navbar-brand {
+        font-family: 'Montserrat';
+        font-weight: 450;
+        font-size: 20px;
+      }
+      .navbar-default .navbar-nav .active > a:after {
+        content: '';
+        position: absolute;
+        left: 50%;
+        bottom: 0;
+        transform: translateX(-50%);
+        width: 10px;
+        height: 10px;
+        border-radius: 70%;
+        background-color: #1DBFAA;
+      }
+    ")
+    )
+  )
   
-  tags$head(tags$style(HTML('* {font-family: "Montserrat", font-size: "20"};')))
 )
 
 
@@ -46,9 +77,10 @@ server <- function(input, output, session) {
     updateTabsetPanel(session, "navbar", selected = "Home")
   })
   
-  shinyjs::addClass(id = "navbar", class = "navbar-right")
+  addClass(id = "navbar", class = "navbar-right")
   
   server_dietSolver("dietSolver")
+  server_spline("spline")
 }
 
 shinyApp(ui = ui, server = server)

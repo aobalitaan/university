@@ -1,12 +1,10 @@
-minimum = c(2000, 0, 0, 0, 0, 25, 50, 5000, 50, 800, 10)
-maximum = c(2250, 300, 65, 2400, 300, 100, 100, 50000, 20000, 1600, 30)
-maxserve = 10
-
 simplexMinimize <- function(dataInput, minimum, maximum, maxserve)
 {
   augcoeffmat = getAugCoeff(dataInput, minimum, maximum, maxserve)
   dualTableu = setUpTableu(augcoeffmat)
-  simplexMaximize(dualTableu)
+  simplexResult = simplexMaximize(dualTableu)
+  
+  return (simplexResult)
 }
 
 getBasicSol <- function(tableu, isFinal)
@@ -18,11 +16,20 @@ getBasicSol <- function(tableu, isFinal)
   basicSol = matrix(NA, nrow = 1, ncol = ncol(tableu) - 1)
   foodNames = rownames(tableu)[-nrow(tableu)]
   sCount = lastCol - 2 - length(foodNames)  
-  colnames(basicSol) = c(paste0("S", 1:sCount), foodNames, "Z")
+  colnames(basicSol) = c(paste0("S", 1:sCount), foodNames, "COST")
+  rownames(basicSol) = "SOLUTION"
+  
   
   if (isFinal == TRUE)
   {
-    basicSol[1,] = c(tableu[lastRow,-(lastCol-1)])
+    
+    basicSol[1,] = tableu[lastRow,-(lastCol-1)]
+
+    basicSol = basicSol[, !grepl("^S\\d+$", colnames(basicSol))]
+    
+    basicSol = as.matrix(basicSol[-which(basicSol == 0)])
+    colnames(basicSol) = "SOLUTION"
+    basicSol = t(basicSol)
   }
   else
   {
@@ -32,14 +39,19 @@ getBasicSol <- function(tableu, isFinal)
       basicSol[1,i] = ifelse(((sum(column) == 1) && (max(column) == 1)), tableu[which.max(column),ncol(tableu)], 0)
     }
   }
-  print(tableu)
   basicSol = round(basicSol, 2)
-  print(t(basicSol))
-  return (basicSol)
+  
+  return (t(basicSol))
 }
 
 simplexMaximize <- function(tableu)
 {
+  simplexResult = list();
+  iteration = 0;
+  
+  simplexResult$initial = list(iteration = iteration, tableu = tableu)
+  simplexResult$feasible = TRUE
+  
   while (TRUE)
   {
     lastRow = nrow(tableu)
@@ -67,8 +79,8 @@ simplexMaximize <- function(tableu)
     
     if (pivotE <= 0)
     {
-      print("Infeasible Solution")
-      return (NA);
+      simplexResult$feasible = FALSE
+      return (simplexResult);
     }
     
     nPR = pivotRow / pivotE
@@ -84,11 +96,16 @@ simplexMaximize <- function(tableu)
         tableu[i,] = tableu[i,] - (nPR * tableu[i,iPC])
       }
     }
+    
+    iteration = iteration + 1;
     basicSol = getBasicSol(tableu, FALSE)
+    
+    simplexResult$perIterate = append(simplexResult$perIterate, list(iteration = iteration, tableu = tableu, basicSol = basicSol))
   }
   basicSol = getBasicSol(tableu, TRUE)
+  simplexResult$final = list(iteration = iteration, tableu = tableu, basicSol = basicSol)
   
-  return (tableu)
+  return (simplexResult)
 }
 
 setUpTableu <- function(augcoeffmat)
@@ -114,6 +131,7 @@ setUpTableu <- function(augcoeffmat)
 setUpConst <- function(augcoeffmat, foodNames, prices, nutrients, minimum, maximum, maxserve)
 {
   augcoeffmat = rbind(augcoeffmat, -augcoeffmat)
+  
   rownames(augcoeffmat) = c(paste0("min_", nutrients), paste0("max_", nutrients))
   
   augcoeffmat = cbind(augcoeffmat, c(minimum, -maximum))
@@ -133,17 +151,21 @@ setUpConst <- function(augcoeffmat, foodNames, prices, nutrients, minimum, maxim
 getAugCoeff <- function(dataInput, minimum, maximum, maxserve)
 {
   data = as.matrix(dataInput)
-  
   foodNames = data[,1]
+
   prices = as.numeric(gsub("\\$", "", data[,2]))
   nutrients = colnames(data[,-(1:3)])
   
-  data = matrix(as.numeric(data[,-(1:3)]), nrow = nrow(data[,-(1:3)]))
+  if (is.null(nutrients))
+  {
+    nutrients = names(data[,-(1:3)])
+  }
+  
+  data = matrix(as.numeric(data[,-(1:3)]), nrow = nrow(data))
+  
   augcoeffmat = t(data)
   
   const_augcoeffmat = setUpConst(augcoeffmat, foodNames, prices, nutrients, minimum, maximum, maxserve)
   
   return (const_augcoeffmat)
 }
-
-result = simplexMinimize(dataInput, minimum, maximum, maxserve)

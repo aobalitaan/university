@@ -1,7 +1,7 @@
 x = c(0, 1, 2.5, 3, 4, 5, 6, 7, 8, 8.75, 9, 10, 11, 11.25, 11.5)
 y = c(1, 2, 9, 9.2, 10, 12, 14.5, 17, 20, 23, 23.5, 24, 25.5, 25.9, 25.9)
 
-source("gaussMethods.R")
+source("Logic/gaussMethods.R")
 
 data = matrix(c(x, y), ncol = 2, nrow = length(x), byrow = FALSE)
 xEval = 0.5
@@ -13,8 +13,7 @@ quadraticSpline <- function(data, xEval)
   
   if ((xEval > data[rData, 1]) || (xEval < data[1, 1]))
   {
-    print("Out of range")
-    return (NA);
+    return (NULL);
   }
   
   eqtns = createEquation(data, rData - 1)
@@ -29,8 +28,9 @@ quadraticSpline <- function(data, xEval)
   
   fx = createFunctions(sol)
   
-  yEval = evaluateX(data, fx, xEval)
-  print(yEval)
+  result = evaluateX(data, fx$fx, xEval)
+  
+  return (list(fx = fx$fxString, yEval = result$yEval, y_fx = result$y_fx))
 }
 
 createEquation <- function(data, n)
@@ -87,30 +87,40 @@ createEquation <- function(data, n)
 
 createFunctions <- function(sol) {
   fx = c()
+  fxString = c()
   
   for (i in seq(from = 1, to = ncol(sol), by = 3))
   {
     subSol = sol[1,i:(i+2)]
     
-    intervFx = paste("function (x) ", paste0("( ", subSol, " * (x ^ ", 2:0, ") )", collapse = " + "))
-    intervFx = eval(parse(text = intervFx))
+    intervFxString = paste("function (x) ", paste0("( ", subSol, " * (x ^ ", 2:0, ") )", collapse = " + "))
+    intervFx = eval(parse(text = intervFxString))
     
     
     fx = c(fx, intervFx)
+    fxString = c(fxString, intervFxString)
   }
   
-  return(fx)
+  return(list(fx = fx, fxString = fxString))
 }
 
 evaluateX <- function(data, fx, xEval)
 {
-  for (i in 1:nrow(data))
+  for (i in 2:nrow(data))
   {
     if (xEval <= data[i,1])
     {
-      return(fx[[i - 1]](xEval))
+      y_fx = fx[[i - 1]];
+      yEval = y_fx(xEval);
+      
+      return(list(y_fx = y_fx, yEval = yEval))
     }
   }
 }
 
-quadraticSpline(data, xEval)
+splineProcess <- function(data, xEval)
+{
+  
+  sorted_mat <- as.matrix(data[order(data[, 1]), ])
+  quadraticSpline(sorted_mat, xEval)
+}
