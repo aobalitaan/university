@@ -3,7 +3,7 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 library(shiny)
 library(shinyjs)
 library(shinyWidgets)
-library(shinycssloaders)
+library(DT)
 library("magrittr")
 library("dplyr")
 
@@ -22,7 +22,7 @@ ui <- fluidPage(
     
     tabPanel("Home", ui_home()),
     tabPanel("Spline", ui_spline("spline")),
-    tabPanel("Regression", ui_regression()),
+    tabPanel("Regression", ui_regression("regression")),
     tabPanel("Diet Solver", ui_dietSolver("dietSolver"))
   ),
   
@@ -81,6 +81,7 @@ server <- function(input, output, session) {
   
   server_dietSolver("dietSolver")
   server_spline("spline")
+  server_regression("regression")
 }
 
 shinyApp(ui = ui, server = server)

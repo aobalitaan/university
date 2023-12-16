@@ -11,11 +11,6 @@ quadraticSpline <- function(data, xEval)
   rData = nrow(data)
   cData = ncol(data)
   
-  if ((xEval > data[rData, 1]) || (xEval < data[1, 1]))
-  {
-    return (NULL);
-  }
-  
   eqtns = createEquation(data, rData - 1)
   eqtns = eqtns[-1,-1]
   
@@ -27,6 +22,11 @@ quadraticSpline <- function(data, xEval)
   colnames(sol) = c("A1", colnames(eqtns[,-ncol(eqtns)]))
   
   fx = createFunctions(sol)
+  
+  if ((xEval > data[rData, 1]) || (xEval < data[1, 1]))
+  {
+    return (list(fx = fx$fxString, yEval = NULL, y_fx = NULL))
+  }
   
   result = evaluateX(data, fx$fx, xEval)
   
@@ -110,8 +110,8 @@ evaluateX <- function(data, fx, xEval)
   {
     if (xEval <= data[i,1])
     {
-      y_fx = fx[[i - 1]];
-      yEval = y_fx(xEval);
+      y_fx = i-1;
+      yEval = fx[[i - 1]](xEval);
       
       return(list(y_fx = y_fx, yEval = yEval))
     }
