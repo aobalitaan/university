@@ -64,7 +64,7 @@ server_spline <- function(id) {
     id, 
     function(input, output, session) {
       data <- reactiveVal(NULL)
-      result <- reactiveVal(NULL)
+      splineResult <- reactiveVal(NULL)
       estimate <- reactiveVal(0)
       
       observeEvent(input$splineFile, {
@@ -86,47 +86,47 @@ server_spline <- function(id) {
         reset("splineFile")
         data(NULL)
         reset("splineEstimate")
-        result(NULL)
+        splineResult(NULL)
       })
       
       observe({
         
         if ((is.null(data()) == FALSE) && (is.na(estimate()) == FALSE))
         {
-          result(splineProcess(data(), estimate()))
+          splineResult(splineProcess(data(), estimate()))
         }
       })
       
       output$output_yEval <- renderText({
-        if (is.null(result()$yEval))
+        if (is.null(splineResult()$yEval))
         {
           "OUT OF RANGE"
         }
         else
         {
-          result()$yEval
+          splineResult()$yEval
         }
       })
       
       output$output_y_fx <- renderText({
-        if (is.null(result()$yEval))
+        if (is.null(splineResult()$yEval))
         {
           "OUT OF RANGE"
         }
         else
         {
-          result()$fx[result()$y_fx]
+          splineResult()$fx[splineResult()$y_fx]
         }
       })
       
       output$output_fx <- renderText({
-        if (is.null(result()$fx))
+        if (is.null(splineResult()$fx))
         {
           "OUT OF RANGE"
         }
         else
         {
-          paste(result()$fx, collapse = "\n")
+          paste(splineResult()$fx, collapse = "\n")
         }
       })
       

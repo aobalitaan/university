@@ -1,10 +1,4 @@
-x = c(0, 1, 2.5, 3, 4, 5, 6, 7, 8, 8.75, 9, 10, 11, 11.25, 11.5)
-y = c(1, 2, 9, 9.2, 10, 12, 14.5, 17, 20, 23, 23.5, 24, 25.5, 25.9, 25.9)
-
 source("Logic/gaussMethods.R")
-
-data = matrix(c(x, y), ncol = 2, nrow = length(x), byrow = FALSE)
-xEval = 0.5
 
 quadraticSpline <- function(data, xEval)
 {
@@ -120,7 +114,6 @@ evaluateX <- function(data, fx, xEval)
 
 splineProcess <- function(data, xEval)
 {
-  
   sorted_mat <- as.matrix(data[order(data[, 1]), ])
   quadraticSpline(sorted_mat, xEval)
 }

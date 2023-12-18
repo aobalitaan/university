@@ -20,14 +20,13 @@ ui <- fluidPage(
     selected = "Home",
     position = "fixed-top",
     
-    tabPanel("Home", ui_home()),
+    tabPanel("Home", ui_home("home")),
     tabPanel("Spline", ui_spline("spline")),
     tabPanel("Regression", ui_regression("regression")),
     tabPanel("Diet Solver", ui_dietSolver("dietSolver"))
   ),
   
   useShinyjs(),
-  
   
   tags$head(
     tags$style(
@@ -47,6 +46,7 @@ ui <- fluidPage(
       .navbar {
         font-weight: 450;
         font-size: 15px;
+        background-color: #21283A;
       }
       .navbar-brand {
         font-family: 'Montserrat';
@@ -67,7 +67,6 @@ ui <- fluidPage(
     ")
     )
   )
-  
 )
 
 
@@ -79,9 +78,16 @@ server <- function(input, output, session) {
   
   addClass(id = "navbar", class = "navbar-right")
   
+  
+  
+  observeEvent(input$exploreBtn, {
+    updateNavbarPage(session, "navbar", selected = "Diet Solver")
+  })
+  
   server_dietSolver("dietSolver")
   server_spline("spline")
   server_regression("regression")
+  server_home("home")
 }
 
 shinyApp(ui = ui, server = server)

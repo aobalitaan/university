@@ -164,7 +164,7 @@ server_dietSolver <- function(id) {
     id,
     function(input, output, session) {
       
-      database <- read.csv("C:/Users/Axel/Desktop/university/2nd Year/1st Semester/CMSC 150/FinalProject/database.csv")
+      database <- read.csv("database.csv")
       
       selectedKeys <- reactiveValues(values = NULL)
       

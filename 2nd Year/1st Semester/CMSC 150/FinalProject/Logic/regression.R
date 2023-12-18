@@ -3,7 +3,7 @@
 # Regression program that gets regression coefficients, equation (string), equation (parsed), added a function for graphing
 
 
-source("gaussMethods.R")
+source("Logic/gaussMethods.R")
 
 # Gets the RHS values for the augcoeffmatrix
 getRHS <- function(xVal, yVal, j)
@@ -60,36 +60,40 @@ makeString <- function(coefficients)
   return (polynomial_string); # return final string
 }
 
-PolynomialRegression <- function(deg, val)
+PolynomialRegression <- function(deg, val, estimate)
 {
-  xVal = val[[1]]; # Gets the x values vector from the list
-  yVal = val[[2]]; # Gets the y values vector from the list
+  xVal = val[,1]; # Gets the x values vector from the list
+  yVal = val[,2]; # Gets the y values vector from the list
   
   n = length(xVal); # Sets number of terms as the number of x values
-  
+ 
   if (length(xVal) != length(yVal)) # If the number of x values and y values not equal, doesn't proceed
   {
     print("Number of x and y value not equal.");
-    return (NA);
+    return (NULL);
   }
   
   if ((deg < 0) || (deg >= n)) # If degree, greater than or equal to number of terms, doesn't proceed
   {
     print("Invalid degree.");
-    return (NA);
+    return (NULL);
   }
   
   augcoeffmatrix = getMatrix(deg, xVal, yVal); # Creates the augcoeffmatrix
+ 
   
   holderVars = c(1:(deg + 1)); # ***** Holder variables just for the code from previous exercise to work *****
   
   result1 = list(augcoeffmatrix = augcoeffmatrix, variables = holderVars);
-  coefficients = GaussianMethod(result1) $solution; # Gets the solution vector using the GaussianMethod of previous exercise
   
+  coefficients = GaussJordanMethod(result1) $solution; # Gets the solution vector using the GaussianMethod of previous exercise
+ 
   polynomial_string = makeString(coefficients); # Creates the string function polynomial
   polynomial_function = eval(parse(text = polynomial_string)); # Creates the parsed function
   
-  return (list(augcoeffmatrix = augcoeffmatrix, coefficients = coefficients, polynomial_string = polynomial_string, polynomial_function = polynomial_function));
+  y_estimate = polynomial_function(estimate)
+  
+  return (list(y_estimate = y_estimate, polynomial_string = polynomial_string, polynomial_function = polynomial_function, xVal = xVal, yVal = yVal))
 }
 
 # Graphs the function (plots and use the equation for the line)
@@ -132,9 +136,8 @@ graph <- function(given, answers)
 #graph(list(a,b), answers);
 
 #================================================
-
-a <- c(1, 3, 6, 7)
-b <- c(10, 20, 19, 33);
-
-PolynomialRegression(3, list(a,b))
+# a <- c(1, 3, 6, 7)
+# b <- c(10, 20, 19, 33);
+# 
+# PolynomialRegression(3, list(a,b))
 

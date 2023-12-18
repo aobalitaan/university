@@ -1,3 +1,5 @@
+source("Logic/regression.R")
+
 
 ui_regression <- function(id) 
 {
@@ -52,6 +54,18 @@ ui_regression <- function(id)
             DTOutput(ns("regressionTable"))
             
           )
+        ),
+        column(
+          width = 8,
+          # Reactive output for Estimated Value
+          h3("Estimated Value"),
+          verbatimTextOutput(ns("output_regression_Y")),
+          
+          h3("Function"),
+          verbatimTextOutput(ns("output_regression_Fx")),
+          
+          h3("Graph"),
+          plotOutput(ns("regressionGraph"))
         )
       )
     )
@@ -68,7 +82,8 @@ server_regression <- function(id)
       disable("degreeScroller")
       
       regressionData <- reactiveVal(NULL)
-      estimate <- reactiveVal(0)
+      regResult <- reactiveVal(NULL)
+      regEstimate <- reactiveVal(0)
       
       observeEvent(input$regressionFile, {
         regressionData(read.csv(input$regressionFile$datapath, header = FALSE))
@@ -86,7 +101,15 @@ server_regression <- function(id)
       observeEvent(input$regressionEstimate, {
         if (is.na(input$regressionEstimate) == FALSE)
         {
-          estimate(input$regressionEstimate) 
+          regEstimate(input$regressionEstimate) 
+        }
+      })
+
+      
+      observe({
+        if ((is.null(regressionData()) == FALSE) && (is.na(regEstimate()) == FALSE))
+        {
+          regResult(PolynomialRegression(as.numeric(input$degreeScroller), regressionData(), regEstimate()))
         }
       })
       
@@ -94,9 +117,65 @@ server_regression <- function(id)
         reset("regressionFile")
         regressionData(NULL)
         reset("degreeScroller")
+        reset("regressionEstimate")
         disable("degreeScroller")
       })
       
+      
+      output$output_regression_Y <- renderText({
+        if (is.null(regResult()$y_estimate))
+        {
+          "DATA NOT VALID"
+        }
+        else
+        {
+          paste(regResult()$y_estimate, collapse = "\n")
+        }
+      })
+      
+      output$output_regression_Fx <- renderText({
+        if (is.null(regResult()$polynomial_string))
+        {
+          "DATA NOT VALID"
+        }
+        else
+        {
+          paste(regResult()$polynomial_string, collapse = "\n")
+        }
+      })
+      
+      # output$regressionGraph <- renderPlot({
+      #   x <- seq(0, 10, by = 1)
+      #   y <- regResult()$polynomial_function(x)
+      #   plot(x, y, type = "l")
+      #   
+      #   points(regResult()$xVal, regResult()$yVal, col = "red", pch = 16)
+      # })
+      
+      
+      
+      output$regressionGraph <- renderPlot({
+        
+        
+        req(regResult())  # Ensure regResult is not NULL
+        
+        if (as.numeric(input$degreeScroller) == 0) 
+        {
+          plot(0, 0, type = "n", xlim = c(min(regResult()$xVal), max(regResult()$xVal)), ylim = c(0, regResult()$y_estimate), col = "red", pch = 16, 
+               xlab = "X", ylab = "Y", main = "Polynomial Regression")
+          abline(a = regResult()$polynomial_function(0), b = 0, col = "blue")
+        }
+        else
+        {
+          x <- seq(min(regResult()$xVal), max(regResult()$xVal), length.out = 100)
+          y <- regResult()$polynomial_function(x)
+          
+          plot(x = regResult()$xVal, y = regResult()$yVal, col = "red", pch = 16, 
+               xlab = "X", ylab = "Y", main = "Polynomial Regression")
+          
+          lines(x, y, type = "l", col = "blue")
+        }
+      })
     }      
   )
 }
