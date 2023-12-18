@@ -1,4 +1,12 @@
+############### SPLINE MODULE ###############
+
+
+
+
+# Imports spline logic
 source("Logic/quadraticSpline.R")
+
+# Ui for spline
 
 ui_spline <- function(id) {
   ns <- NS(id)
@@ -23,16 +31,22 @@ ui_spline <- function(id) {
     ),
     
     # Main content area
+    
     mainPanel(
       fluidRow(
         column(
           
-          width = 4,  # Set the desired width, you can adjust this value
+          width = 4,
+          
+          # Well panel for inputs
+          
           wellPanel(
             fileInput(ns("splineFile"), "Upload CSV file"),
             numericInput(ns("splineEstimate"), "Estimate", value = 0),
             actionButton(ns("splineClear"), "Clear", width = "100%", style = "margin-bottom: 1px; background-color: #E8083E !important; color: white !important;"),
           ),
+          
+          # Well panel for CSV contents
           
           wellPanel(
             h3("CSV Data"),
@@ -40,16 +54,18 @@ ui_spline <- function(id) {
           
           )
         ),
+        
+        
+        # Output section (right panel)
+        
         column(
           width = 8,
-          # Reactive output for Estimated Value
           h3("Estimated Value"),
           verbatimTextOutput(ns("output_yEval")),
           
           h3("Interval Function"),
           verbatimTextOutput(ns("output_y_fx")),
           
-          # Reactive LaTeX output for Function
           h3("Functions"),
           verbatimTextOutput(ns("output_fx"))
           )
@@ -58,7 +74,8 @@ ui_spline <- function(id) {
   )
 }
 
-# Define the server module
+# server for spline
+
 server_spline <- function(id) {
   moduleServer(
     id, 
@@ -67,13 +84,19 @@ server_spline <- function(id) {
       splineResult <- reactiveVal(NULL)
       estimate <- reactiveVal(0)
       
+      
+      # File input
       observeEvent(input$splineFile, {
         data(read.csv(input$splineFile$datapath, header = FALSE))
       })
       
+      # Rendering of csv data
       output$splineTable <- renderDT({
         datatable(data(), editable = FALSE, colnames = c("X", "Y"))
       })
+      
+      
+      # Getting to be estimated x value
       
       observeEvent(input$splineEstimate, {
         if (is.na(input$splineEstimate) == FALSE)
@@ -82,6 +105,8 @@ server_spline <- function(id) {
         }
       })
       
+      
+      # Clearing input
       observeEvent(input$splineClear, {
         reset("splineFile")
         data(NULL)
@@ -89,6 +114,8 @@ server_spline <- function(id) {
         splineResult(NULL)
       })
       
+      
+      # Solving for quadratic spline
       observe({
         
         if ((is.null(data()) == FALSE) && (is.na(estimate()) == FALSE))
@@ -96,6 +123,9 @@ server_spline <- function(id) {
           splineResult(splineProcess(data(), estimate()))
         }
       })
+      
+      
+      # Renders results
       
       output$output_yEval <- renderText({
         if (is.null(splineResult()$yEval))

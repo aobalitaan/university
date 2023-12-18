@@ -1,17 +1,40 @@
+# AXEL O. BALITAAN
+# 2022 - 05153
+# Project in CMSC 150
+
+
+############### MAIN ###############
+
+
+
+
+
+# Sets working directory to current directory of main
 setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
-library(shiny)
-library(shinyjs)
-library(shinyWidgets)
-library(DT)
-library("magrittr")
-library("dplyr")
+# List of required libraries
+required_libraries <- c("shiny", "shinyjs", "shinyWidgets", "DT", "magrittr", "dplyr")
 
+# Install and load libraries if not already installed
+for (lib in required_libraries) 
+{
+  if (!requireNamespace(lib, quietly = TRUE)) 
+  {
+    install.packages(lib, dependencies = TRUE)
+  }
+  
+  library(lib, character.only = TRUE)
+}
+
+
+# imports modules
 source("modules/module_home.R")
 source("modules/module_dietSolver.R")
 source("modules/module_regression.R")
 source("modules/module_spline.R")
 
+
+# Navigation bar page
 ui <- fluidPage( 
   theme = shinythemes::shinytheme("flatly"), 
   navbarPage(
@@ -20,6 +43,8 @@ ui <- fluidPage(
     selected = "Home",
     position = "fixed-top",
     
+    
+    #Creates tabs for each module
     tabPanel("Home", ui_home("home")),
     tabPanel("Spline", ui_spline("spline")),
     tabPanel("Regression", ui_regression("regression")),
@@ -28,6 +53,7 @@ ui <- fluidPage(
   
   useShinyjs(),
   
+  # Designs for tabpanel in navbar
   tags$head(
     tags$style(
       type = "text/css",
@@ -70,8 +96,11 @@ ui <- fluidPage(
 )
 
 
-server <- function(input, output, session) {
-  
+
+# Main Server
+server <- function(input, output, session) 
+{
+  # By default Home is selected, switch tabs
   observeEvent(input$navbar_title_click, {
     updateTabsetPanel(session, "navbar", selected = "Home")
   })
@@ -80,10 +109,13 @@ server <- function(input, output, session) {
   
   
   
+  # Switch to diet solver if explore button was clicked in home module
   observeEvent(input$exploreBtn, {
     updateNavbarPage(session, "navbar", selected = "Diet Solver")
   })
   
+  
+  # Hosts servers
   server_dietSolver("dietSolver")
   server_spline("spline")
   server_regression("regression")

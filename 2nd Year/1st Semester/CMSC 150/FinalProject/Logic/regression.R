@@ -1,3 +1,7 @@
+############### REGRESSION LOGIC ###############
+
+
+
 # AXEL O. BALITAAN
 # 2022 - 05153
 # Regression program that gets regression coefficients, equation (string), equation (parsed), added a function for graphing

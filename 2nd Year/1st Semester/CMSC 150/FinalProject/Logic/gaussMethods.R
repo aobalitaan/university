@@ -1,3 +1,6 @@
+############### GAUSS JORDAN LOGIC ###############
+
+
 #AXEL O. BALITAAN
 #2022-05153
 #CMSC 150 - B2L

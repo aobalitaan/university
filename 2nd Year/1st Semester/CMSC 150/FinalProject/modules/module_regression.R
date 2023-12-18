@@ -1,6 +1,12 @@
+############### REGRESSION MODULE ###############
+
+
+
+# Imports regression logic
 source("Logic/regression.R")
 
 
+# UI for regression
 ui_regression <- function(id) 
 {
   ns <- NS(id)
@@ -35,29 +41,41 @@ ui_regression <- function(id)
       fluidRow(
         column(
           
-          width = 4,  # Set the desired width, you can adjust this value
+          width = 4,
+          
+          
+          # Input panel
           
           wellPanel(
+            
+            # CSV file input
+            
             fileInput(ns("regressionFile"), "Upload CSV file"),
             sliderTextInput(
               ns("degreeScroller"), "Degree",
-              choices = as.character(0:10),
+              choices = as.character(1:10),
               grid = TRUE,
               dragRange = TRUE
             ),
+            
+            # Estimate Input
+            
             numericInput(ns("regressionEstimate"), "Estimate", value = 0),
             actionButton(ns("regressionClear"), "Clear", width = "100%", style = "margin-bottom: 1px; background-color: #E8083E !important; color: white !important;")
           ),
           
+          # Shows the content of the csv
           wellPanel(
             h3("CSV Data"),
             DTOutput(ns("regressionTable"))
             
           )
         ),
+        
+        # Right (Results) side
         column(
           width = 8,
-          # Reactive output for Estimated Value
+    
           h3("Estimated Value"),
           verbatimTextOutput(ns("output_regression_Y")),
           
@@ -73,30 +91,43 @@ ui_regression <- function(id)
 }
 
 
+# Server for regression
+
 server_regression <- function(id)
 {
   moduleServer(
     id,
     function(input, output, session) 
     {
+      
+      # By default degree scroller is disabled (no file yet)
+      
       disable("degreeScroller")
       
       regressionData <- reactiveVal(NULL)
       regResult <- reactiveVal(NULL)
       regEstimate <- reactiveVal(0)
       
+      
+      # If user inputted a file
+      
       observeEvent(input$regressionFile, {
         regressionData(read.csv(input$regressionFile$datapath, header = FALSE))
         
+        # Enables and sets up the degree scroller
         if (!is.null(regressionData())) {
           enable("degreeScroller")
-          updateSliderTextInput(session, "degreeScroller", choices = as.character(0:(nrow(regressionData()) - 1)))
+          updateSliderTextInput(session, "degreeScroller", choices = as.character(1:(nrow(regressionData()) - 1)))
         }
       })
+      
+      # Renders the csv file table
       
       output$regressionTable <- renderDT({
         datatable(regressionData(), editable = FALSE, colnames = c("X", "Y"))
       })
+      
+      # Gets the value to be estimated
       
       observeEvent(input$regressionEstimate, {
         if (is.na(input$regressionEstimate) == FALSE)
@@ -105,6 +136,7 @@ server_regression <- function(id)
         }
       })
 
+      # If a file is loaded, generate results
       
       observe({
         if ((is.null(regressionData()) == FALSE) && (is.na(regEstimate()) == FALSE))
@@ -112,6 +144,8 @@ server_regression <- function(id)
           regResult(PolynomialRegression(as.numeric(input$degreeScroller), regressionData(), regEstimate()))
         }
       })
+      
+      # Clear button, clears/resets all input
       
       observeEvent(input$regressionClear, {
         reset("regressionFile")
@@ -121,6 +155,8 @@ server_regression <- function(id)
         disable("degreeScroller")
       })
       
+      
+      # Results Rendering
       
       output$output_regression_Y <- renderText({
         if (is.null(regResult()$y_estimate))
@@ -144,15 +180,8 @@ server_regression <- function(id)
         }
       })
       
-      # output$regressionGraph <- renderPlot({
-      #   x <- seq(0, 10, by = 1)
-      #   y <- regResult()$polynomial_function(x)
-      #   plot(x, y, type = "l")
-      #   
-      #   points(regResult()$xVal, regResult()$yVal, col = "red", pch = 16)
-      # })
-      
-      
+
+      # Renders the regression graph      
       
       output$regressionGraph <- renderPlot({
         

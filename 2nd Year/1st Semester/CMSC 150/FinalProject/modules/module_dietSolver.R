@@ -1,15 +1,24 @@
+############### DIET SOLVER MODULE ###############
+
+
+
+# Imports the logic for simplex
 source("Logic/simplex.R")
+
+# Default Constraints
 minimum = c(2000, 0, 0, 0, 0, 25, 50, 5000, 50, 800, 10)
 maximum = c(2250, 300, 65, 2400, 300, 100, 100, 50000, 20000, 1600, 30)
 maxserve = 10
 
 
+# Ui for diet solver
 ui_dietSolver <- function(id) 
 {
   ns <- NS(id)
   fluidPage(
     
     # Add custom CSS styles
+    
     tags$head(
       tags$style(HTML("
         .fixed-left-panel {
@@ -34,16 +43,20 @@ ui_dietSolver <- function(id)
       "))
     ),
     
+    # Main whole page
+    
     fluidRow(
+      
       column(
         3,
-        class = "fixed-left-panel",  # Apply the custom class to the left panel
+        class = "fixed-left-panel",
+        
+        # Add left panel
         leftPanel(ns)
       ),
       column(
         9,
-        
-        
+        # Right Panel
         
         fluidRow(
           style = "width: 100%;
@@ -55,9 +68,12 @@ ui_dietSolver <- function(id)
 
           align = "center",
           
+          # Long solve button
           actionButton(ns("in_solve"), label = "SOLVE", icon("check"), width = "100%", style = "background-color: #1DBFAA;
                        color: white; font-weight: 500px; font-size: 18px; border: #1DBFAA")
         ),
+        
+        # table of data in right
         
         class = "scrollable-content",
         fluidRow(
@@ -75,6 +91,9 @@ ui_dietSolver <- function(id)
 
 leftPanel <- function(ns) 
 {
+  # Left panel (Item selectors)
+  
+  
   fluidRow(
     style = "
               position: fixed; 
@@ -119,6 +138,8 @@ leftPanel <- function(ns)
       fluidRow(
         style = "padding-right: 15px",
         
+        
+        # Search text input 
         column(8,
                style = "margin-right: 0px; 
                   padding-right: 0px",
@@ -127,6 +148,7 @@ leftPanel <- function(ns)
                          placeholder = "Enter a food name",
                          width = "100%")),
         
+        # Reset button
         column(2,
                style = "margin-right: 0px; 
                   padding-left: 2px;
@@ -139,6 +161,7 @@ leftPanel <- function(ns)
                             offset = 0,
                             style = "background-color: #E8083E !important; color: white !important;")),  # Set red background color
         
+        # Select all button
         column(2,
                style = "margin-right: 0px; 
                   padding-left: 2px;
@@ -151,26 +174,36 @@ leftPanel <- function(ns)
                             offset = 0,
                             style = "background-color: #FB8D1A !important; color: white !important;"))  # Set yellow background color
       ),
+      
+        # Item checkboxes
         uiOutput(ns("out_foodCheckbox")),
+      
+        # If search not in database
         textOutput(ns("noSuchFoodMessage"))
     ),
-    
-    uiOutput(ns("foodTable"))
   )
 }
 
+
+# Module server for diet solver
 server_dietSolver <- function(id) {
   moduleServer(
     id,
     function(input, output, session) {
       
+      # Loads the database
       database <- read.csv("database.csv")
       
+      
+      # Initialized empty reactive variabales
       selectedKeys <- reactiveValues(values = NULL)
       
       filteredKeys <- reactiveValues(values = NULL)
       unselectedKeys <- reactiveValues(values = NULL)
       simplexResult <- reactiveValues(value = NULL);
+      
+      
+      # Filters items based on search
       
       observeEvent(input$in_search, {
         input_search <- gsub("\\\\", " ", input$in_search)
@@ -186,6 +219,8 @@ server_dietSolver <- function(id) {
       })
       
       
+      # Updates selected key list
+      
       observeEvent(input$in_foodCheckbox, {
         input_key <- input$in_foodCheckbox
         
@@ -198,21 +233,29 @@ server_dietSolver <- function(id) {
 
       }, ignoreNULL = FALSE)
       
+      
+      # Select All - adds all items
       observeEvent(input$in_selectAll,
                    {
                      selectedKeys$values <- union(selectedKeys$values, database$Foods)
                    })
       
+      
+      # Clear - removes all items 
       observeEvent(input$clear,
                    {
                      selectedKeys$values <- NULL;
                    })
+      
+      
+      # Outputs reactive table
       output$out_table <- renderTable(
         {
           database[which(database$Foods %in% selectedKeys$values), ]
         }, align = "c"
       )
       
+      # Output if search is not in database
       output$noSuchFoodMessage <- renderText({
         if (length(filteredKeys$values) == 0) {
           "No such food."
@@ -221,6 +264,7 @@ server_dietSolver <- function(id) {
         }
       })
       
+      # Outputs the food check boxes
       output$out_foodCheckbox <- renderUI({
         if (length(filteredKeys$values) == 0) 
         {
@@ -231,7 +275,7 @@ server_dietSolver <- function(id) {
           checkboxGroupButtons(
             inputId = session$ns("in_foodCheckbox"),
             label = NULL,
-            choices = filteredKeys$values,
+            choices = filteredKeys$values, # Choices are reactive, changes with the search
             individual = FALSE,
             width = "100%",
             direction = "vertical",
@@ -241,6 +285,8 @@ server_dietSolver <- function(id) {
         }
       })
     
+      
+      # If none is selected solve button is disabled
       observe({
       if (is.null(selectedKeys$values) || length(selectedKeys$values) == 0) {
         disable("in_solve")
@@ -251,12 +297,18 @@ server_dietSolver <- function(id) {
       }
     })
     
+      # By default modal shows the final solution
       showModalPage <- reactiveVal(1) 
       
-    
+      # If user clicks solve
       observeEvent(input$in_solve, {
         showModalPage(1)
+        
+        # Solves diet minimization
+        
         simplexResult$values <- simplexMinimize(database[which(database$Foods %in% selectedKeys$values), ], minimum, maximum, maxserve)
+        
+        # Shows the modal
         showModal(
           modalDialog(
             title = "Solver Result",
@@ -278,6 +330,8 @@ server_dietSolver <- function(id) {
         )
       })
     
+      # Renders the modal's content
+      
       output$modalContent <- renderUI({
         if (showModalPage() == 1) 
         {
@@ -289,9 +343,13 @@ server_dietSolver <- function(id) {
         }
       })
     
+      # Determines which modal page to show
+      
       observeEvent(input$togglePage, {
         showModalPage(ifelse(showModalPage() == 1, 2, 1))
       })
+      
+      #Close modal
       
       observeEvent(input$closeModal, {
         removeModal()
@@ -300,17 +358,28 @@ server_dietSolver <- function(id) {
   )
 }
 
+# Page 1 of the modal, final solution
+
 modalPanelContentPage1 <- function(simplexResult) {
-  if (simplexResult$feasible == FALSE) {
+  
+  # If not feasible, prompts user
+  
+  if (simplexResult$feasible == FALSE) 
+  {
     fluidPage(
       h1("No Feasible Solution", style = "text-align: center;")
     )
   } 
-  else {
+  
+  # else shows content
+  else 
+  {
     fluidPage(
       h1("Final Solution", style = "text-align: center;"),
       h1(""),
       h4(sprintf("ITERATION #%s", simplexResult$final$iteration), style = "padding-left: 0; text-align: center"),
+      
+      # Renders basic solution
       
       div(
         style = "overflow-x: auto; margin: auto; position: center; text-align: center;",
@@ -318,18 +387,29 @@ modalPanelContentPage1 <- function(simplexResult) {
         renderTable(t(simplexResult$final$basicSol), include.rownames = TRUE, align = "c")
       ),
       
-      h4("TABLEU", style = "padding-left: 0; text-align: center;"),
+      h4("TABLEAU", style = "padding-left: 0; text-align: center;"),
+      
+      
+      # Render table
       
       div(
         style = "overflow-x: auto; margin: auto;",
-        renderTable(simplexResult$final$tableu, include.rownames = TRUE, align = "c")
+        renderTable(simplexResult$final$tableau, include.rownames = TRUE, align = "c")
       )
     )
   }
 }
 
+
+# Page 2 of the modal
+
 modalPanelContentPage2 <- function(simplexResult) {
-  if (simplexResult$feasible == FALSE) {
+  
+  
+  # If not feasible, prompts user
+  
+  if (simplexResult$feasible == FALSE) 
+  {
     fluidPage(
       h1("No Feasible Solution", style = "text-align: center;")
     )
@@ -337,18 +417,29 @@ modalPanelContentPage2 <- function(simplexResult) {
   else
   {
     fluidPage(
-      h1("Initial Tableu", style = "text-align: center;"),
+      
+      # Renders initial tableu
+      
+      h1("Initial tableau", style = "text-align: center;"),
       h1(""),
       div(
         style = "overflow-x: auto; margin: auto;",
-        renderTable(simplexResult$initial$tableu, include.rownames = TRUE, align = "c")
+        renderTable(simplexResult$initial$tableau, include.rownames = TRUE, align = "c")
       ),
+      
+      
+      # Renders per iteration
+      
       h1("Iterations", style = "text-align: center;"),
       
-      # Use lapply to create a tagList directly
+      
+      # From https://www.rdocumentation.org/packages/base/versions/3.6.2/topics/lapply
+      # https://stackoverflow.com/questions/43260089/using-lapply-in-renderui-in-shiny-module
+      
+      
       lapply(seq(from = 1, to = length(simplexResult$perIterate), by = 3), function(i) {
         iteration <- simplexResult$perIterate[[i]]
-        tableu <- simplexResult$perIterate[[i + 1]]
+        tableau <- simplexResult$perIterate[[i + 1]]
         basicSol <- simplexResult$perIterate[[i + 2]]
         t
         
@@ -358,10 +449,10 @@ modalPanelContentPage2 <- function(simplexResult) {
             style = "overflow-x: auto; margin: auto; position: center; text-align: center;",
             renderTable(t(basicSol), include.rownames = TRUE, align = "c")
           ),
-          h4("TABLEU", style = "padding-left: 0; text-align: center;"),
+          h4("tableau", style = "padding-left: 0; text-align: center;"),
           div(
             style = "overflow-x: auto; margin: auto;",
-            renderTable(tableu, include.rownames = TRUE, align = "c")
+            renderTable(tableau, include.rownames = TRUE, align = "c")
           )
         )
       })
