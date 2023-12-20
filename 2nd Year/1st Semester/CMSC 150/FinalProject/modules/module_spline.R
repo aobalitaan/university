@@ -15,10 +15,10 @@ ui_spline <- function(id) {
     tags$head(
       tags$style(
         HTML("
-           /* Set a fixed width for verbatim text outputs */
+           
            pre {
               white-space: pre-wrap;
-              width: 175%; /* Set your desired fixed width */
+              width: 175%; 
            }
       ")
       )

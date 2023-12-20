@@ -83,6 +83,8 @@ PolynomialRegression <- function(deg, val, estimate)
     return (NULL);
   }
   
+ 
+  
   augcoeffmatrix = getMatrix(deg, xVal, yVal); # Creates the augcoeffmatrix
  
   
@@ -92,6 +94,11 @@ PolynomialRegression <- function(deg, val, estimate)
   
   coefficients = GaussJordanMethod(result1) $solution; # Gets the solution vector using the GaussianMethod of previous exercise
  
+  if (is.null(coefficients))
+  {
+    return (list(y_estimate = "ERROR", polynomial_string = "ERROR", polynomial_function = "ERROR", xVal = xVal, yVal = yVal))
+  }
+  
   polynomial_string = makeString(coefficients); # Creates the string function polynomial
   polynomial_function = eval(parse(text = polynomial_string)); # Creates the parsed function
   

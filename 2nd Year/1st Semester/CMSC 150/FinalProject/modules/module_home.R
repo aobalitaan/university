@@ -13,11 +13,11 @@ ui_home <- function(id) {
     div(
       style = "background-image: url('bg_landing.png'); 
             background-size: cover; 
-            text-align: left;   /* Align text and buttons to the left */
-            width: 108%;         /* Full width */
+            text-align: left;   
+            width: 108%;        
             padding-top: 25%;
             padding-left: 5%;
-            padding-right: 55%;  /* Add right padding */
+            padding-right: 55%; 
             margin-left: -45px;
             height: 100vh;",
       h1("Welcome!", style = "color: white; font-size: 50px; font-weight: bold;"),

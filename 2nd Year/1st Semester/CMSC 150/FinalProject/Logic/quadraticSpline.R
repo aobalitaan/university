@@ -2,7 +2,7 @@
 
 
 
-
+3
 # Imports gauss jordan method
 source("Logic/gaussMethods.R")
 

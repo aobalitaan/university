@@ -26,7 +26,7 @@ ui_dietSolver <- function(id)
           width: 18%;
           height: 100%;
           overflow-y: auto;
-          z-index: 1000; /* Set a higher z-index to keep it on top */
+          z-index: 1000;
         }
 
         .scrollable-content {
@@ -36,7 +36,7 @@ ui_dietSolver <- function(id)
           padding-right: 0px;
           font-size: 14px;
           position: relative;
-          margin-left: 20%; /* Adjust the margin to match the width of the left panel */
+          margin-left: 20%;
           margin-right: 0%;
           overflow-x: auto;
         }
@@ -367,7 +367,14 @@ modalPanelContentPage1 <- function(simplexResult) {
   if (simplexResult$feasible == FALSE) 
   {
     fluidPage(
-      h1("No Feasible Solution", style = "text-align: center;")
+      h1("No Feasible Solution", style = "text-align: center;"),
+      
+      h2("Initial Tableau", style = "text-align: center;"),
+      h1(""),
+      div(
+        style = "overflow-x: auto; margin: auto;",
+        renderTable(simplexResult$initial$tableau, include.rownames = TRUE, align = "c")
+      ),
     )
   } 
   
@@ -384,7 +391,7 @@ modalPanelContentPage1 <- function(simplexResult) {
       div(
         style = "overflow-x: auto; margin: auto; position: center; text-align: center;",
         
-        renderTable(t(simplexResult$final$basicSol), include.rownames = TRUE, align = "c")
+        renderTable(simplexResult$final$basicSol, include.rownames = TRUE, align = "c")
       ),
       
       h4("TABLEAU", style = "padding-left: 0; text-align: center;"),
@@ -420,7 +427,7 @@ modalPanelContentPage2 <- function(simplexResult) {
       
       # Renders initial tableu
       
-      h1("Initial tableau", style = "text-align: center;"),
+      h1("Initial Tableau", style = "text-align: center;"),
       h1(""),
       div(
         style = "overflow-x: auto; margin: auto;",
@@ -441,7 +448,7 @@ modalPanelContentPage2 <- function(simplexResult) {
         iteration <- simplexResult$perIterate[[i]]
         tableau <- simplexResult$perIterate[[i + 1]]
         basicSol <- simplexResult$perIterate[[i + 2]]
-        t
+   
         
         tagList(
           h4(sprintf("ITERATION #%s", iteration), style = "padding-left: 0; text-align: center"),
@@ -449,7 +456,7 @@ modalPanelContentPage2 <- function(simplexResult) {
             style = "overflow-x: auto; margin: auto; position: center; text-align: center;",
             renderTable(t(basicSol), include.rownames = TRUE, align = "c")
           ),
-          h4("tableau", style = "padding-left: 0; text-align: center;"),
+          h4("Tableau", style = "padding-left: 0; text-align: center;"),
           div(
             style = "overflow-x: auto; margin: auto;",
             renderTable(tableau, include.rownames = TRUE, align = "c")

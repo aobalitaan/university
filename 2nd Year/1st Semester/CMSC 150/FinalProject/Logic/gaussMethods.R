@@ -99,6 +99,12 @@ GaussJordanMethod <- function(result1)
       #Has +(i-1) to compensate to compensate for this (align with the indexing of the main matrix)
       pivotRow = which.max(abs(mat[i:n,i])) + (i-1);
       
+      if (length(mat[pivotRow, i]) == 0)
+      {
+        return (NULL)
+      }
+      
+      
       #If the element is zero, no unique solution exists
       if (mat[pivotRow, i] == 0)
       {

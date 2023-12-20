@@ -59,6 +59,19 @@ ui <- fluidPage(
       type = "text/css",
       HTML("
       
+      @font-face {
+        font-family: 'Montserrat';
+        src: url('Montserrat-Regular.ttf') format('truetype');
+        font-weight: normal;
+        font-style: normal;
+      }
+      @font-face {
+        font-family: 'Montserrat';
+        src: url('Montserrat-Bold.ttf') format('truetype');
+        font-weight: bold;
+        font-style: normal;
+      }
+      
       body 
       {
         padding-top: 55px;

@@ -8,6 +8,20 @@ simplexMinimize <- function(dataInput, minimum, maximum, maxserve)
   augcoeffmat = getAugCoeff(dataInput, minimum, maximum, maxserve) # Sets up the augcoeffmat
   dualTableu = setUpTableu(augcoeffmat) # Makes the dual (tranposed) tableu
   simplexResult = simplexMaximize(dualTableu) # Perform simplex maximization the dual tableu
+
+  
+  costCol = which(dataInput$Foods %in% colnames(simplexResult$final$basicSol))# find index of colnames(simplexResult$final$basicSol) in datadataInput$Foods
+  
+  priceVec = as.numeric(gsub("\\$", "", dataInput[,2][costCol]))
+  
+  foodCost = simplexResult$final$basicSol * c(priceVec, 1)
+  
+  simplexResult$final$basicSol = rbind(simplexResult$final$basicSol, foodCost)
+  rownames(simplexResult$final$basicSol) = c("SERVING", "PRICE")
+  simplexResult$final$basicSol[1, ncol(simplexResult$final$basicSol)] = ""
+  
+  print(simplexResult$final$basicSol)
+  
   
   return (simplexResult)
 }
@@ -22,7 +36,7 @@ getBasicSol <- function(tableau, isFinal)
   basicSol = matrix(NA, nrow = 1, ncol = ncol(tableau) - 1)
   foodNames = rownames(tableau)[-nrow(tableau)]
   sCount = lastCol - 2 - length(foodNames)  
-  colnames(basicSol) = c(paste0("S", 1:sCount), foodNames, "COST")
+  colnames(basicSol) = c(paste0("S", 1:sCount), foodNames, "TOTAL COST")
   rownames(basicSol) = "SOLUTION"
   
   
@@ -37,8 +51,8 @@ getBasicSol <- function(tableau, isFinal)
     
     # Removes variable solutions with result of 0
     basicSol = as.matrix(basicSol[-which(basicSol == 0)])
-    colnames(basicSol) = "SOLUTION"
-    basicSol = t(basicSol)
+    colnames(basicSol) = "SERVING"
+    basicSol = basicSol
   }
   else
   {
